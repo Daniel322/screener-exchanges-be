@@ -1,0 +1,9 @@
+const path = require('path');
+
+const DB_PATH = process.env.NODE_ENV === 'production' ? 'dist/db' : 'src/db';
+
+module.exports = {
+  'config': path.resolve('config', 'config.js'),
+  'migrations-path': path.resolve(DB_PATH, 'migrations'),
+  'seeders-path': path.resolve(DB_PATH, 'seeds'),
+};
