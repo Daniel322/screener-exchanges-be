@@ -12,6 +12,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 import { EnvConfig, SequelizeConfig } from 'src/common/configs';
 import { HttpExceptionFilter } from 'src/common/exceptions';
+import { TelegramModule } from 'src/modules/telegram/telegram.module';
 
 import { UsersModule } from './users/users.module';
 
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
       }),
     }),
     UsersModule,
+    TelegramModule,
   ],
   controllers: [],
   providers: [
