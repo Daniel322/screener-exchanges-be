@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.develop
+    restart: unless-stopped
+    env_file:
+      - .env.development
+    ports:
+      - 3100:3100
+    command: npm run start:dev
+    links:
+      - postgres:postgres
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: project_x
+      POSTGRES_DATABASE: project_x
+    ports:
+     - 5432:5432
