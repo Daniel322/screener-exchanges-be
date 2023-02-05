@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
       },
       telegramId: {
-        type: Sequelize.NUMBER,
+        type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: null,
       },
@@ -25,7 +25,7 @@ module.exports = {
         allowNull: true,
         defaultValue: null,
       },
-      blockedAt: {
+      deletedAt: {
         type: Sequelize.DATE,
         allowNull: true,
       },

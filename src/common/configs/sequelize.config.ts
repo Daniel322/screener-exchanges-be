@@ -1,6 +1,8 @@
 import { SequelizeModuleAsyncOptions } from '@nestjs/sequelize';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 
+import { User } from 'src/modules/users/users.entity';
+
 export const SequelizeConfig: SequelizeModuleAsyncOptions = {
   useFactory: async (configService: ConfigService) => ({
     dialect: 'postgres',
@@ -9,7 +11,7 @@ export const SequelizeConfig: SequelizeModuleAsyncOptions = {
     username: configService.get('db.username'),
     password: configService.get('db.password'),
     database: configService.get('db.name'),
-    models: [],
+    models: [User],
   }),
   imports: [ConfigModule],
   inject: [ConfigService],

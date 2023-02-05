@@ -91,8 +91,18 @@ export class UsersService {
     transaction: Transaction = null,
     raw = true,
   ): Promise<User> {
+    const { password, email, telegramId } = data;
+
+    if (!email && !telegramId) {
+      throw new BadRequestException(
+        'for create user need email or telegram id!',
+      );
+    }
+
+    if (email && !password) {
+      throw new BadRequestException('need password!');
+    }
     let hashedPassword = null;
-    const { password } = data;
     if (password) {
       hashedPassword = await this.bcryptService.hash(password);
     }
