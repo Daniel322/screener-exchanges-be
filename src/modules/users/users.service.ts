@@ -4,8 +4,8 @@ import {
   Logger,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
-
 import { FindOptions, Transaction, Op } from 'sequelize';
 import * as dayjs from 'dayjs';
 
@@ -20,14 +20,17 @@ import {
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger('User service');
-  private readonly banTime = 24 * 180;
+  private readonly logger = new Logger(UsersService.name);
+  private readonly archiveTime: number;
 
   constructor(
     @Inject('USER_REPOSITORY')
     private readonly userRepository: typeof User,
     private readonly bcryptService: BcryptService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.archiveTime = Number(this.configService.get('times.archiveTime'));
+  }
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON)
   async handleCronToDeleteOldArchiveUsers() {
@@ -35,12 +38,12 @@ export class UsersService {
       const userForDelete = await this.userRepository.findAll({
         where: {
           deletedAt: {
-            [Op.gte]: dayjs().set('hour', -this.banTime).format(),
+            [Op.gte]: dayjs().set('hour', -this.archiveTime).format(),
           },
         },
         raw: true,
       });
-      return Promise.all(userForDelete.map((elem) => this.deleteUser(elem.id)));
+      await Promise.all(userForDelete.map((elem) => this.deleteUser(elem.id)));
     } catch (error) {
       this.logger.error('error for get access token cron tab', error);
     }

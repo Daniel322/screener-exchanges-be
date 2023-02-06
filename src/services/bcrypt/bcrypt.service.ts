@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class BcryptService {
   private readonly saltRounds: string;
-  private readonly logger = new Logger('Bcrypt service');
+  private readonly logger = new Logger(BcryptService.name);
 
   constructor(private readonly configService: ConfigService) {
     this.saltRounds = this.configService.get('salt.rounds');

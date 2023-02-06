@@ -2,7 +2,6 @@ import {
   Controller,
   Body,
   Param,
-  Query,
   Post,
   Get,
   Patch,
@@ -36,11 +35,11 @@ export class UsersController {
   }
 
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'create user',
   })
   @Post('/')
-  async createUser(@Body() body: CreateUserDto) {
+  async createUser(@Body() body: CreateUserDto): Promise<User> {
     try {
       return this.usersService.createUser(body);
     } catch (error) {

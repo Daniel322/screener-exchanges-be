@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
 import { BcryptModule } from 'src/services/bcrypt/bcrypt.module';
 
@@ -8,7 +9,7 @@ import { UsersService } from './users.service';
 
 @Module({
   controllers: [UsersController],
-  imports: [BcryptModule],
+  imports: [BcryptModule, ConfigModule],
   providers: [UsersService, ...usersProviders],
   exports: [UsersService],
 })
