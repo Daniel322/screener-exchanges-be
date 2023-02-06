@@ -38,7 +38,7 @@ export class UsersService {
       const userForDelete = await this.userRepository.findAll({
         where: {
           deletedAt: {
-            [Op.gte]: dayjs().set('hour', -this.archiveTime).format(),
+            [Op.gte]: dayjs().subtract(this.archiveTime, 'hour').format(),
           },
         },
         raw: true,

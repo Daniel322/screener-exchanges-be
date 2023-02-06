@@ -8,6 +8,7 @@ import {
   BadRequestException,
   UseGuards,
   Req,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -39,6 +40,7 @@ export class UsersController {
     description: 'create user',
   })
   @Post('/')
+  @HttpCode(201)
   async createUser(@Body() body: CreateUserDto): Promise<User> {
     try {
       return this.usersService.createUser(body);
