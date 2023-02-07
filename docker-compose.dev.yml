@@ -10,6 +10,8 @@ services:
       - .env.development
     ports:
       - 3100:3100
+    dns:
+      - 8.8.8.8
     command: npm run start:dev
     links:
       - postgres:postgres

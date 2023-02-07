@@ -18,6 +18,10 @@ const throttle = registerAs('throttle', () => ({
   limit: process.env.THROTTLE_LIMIT,
 }));
 
+const times = registerAs('times', () => ({
+  archiveTime: process.env.ARCHIVE_TIME,
+}));
+
 export const EnvConfig = {
   envFilePath: `.env.${process.env.NODE_ENV}`,
   validationSchema: Joi.object({
@@ -33,7 +37,9 @@ export const EnvConfig = {
 
     THROTTLE_TTL: Joi.string().required(),
     THROTTLE_LIMIT: Joi.string().required(),
+
+    ARCHIVE_TIME: Joi.string().required(),
   }),
-  load: [env, database, throttle],
+  load: [env, database, throttle, times],
   isGlobal: true,
 };
