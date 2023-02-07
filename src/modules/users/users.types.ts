@@ -1,6 +1,6 @@
 export interface CreateUserData {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
   telegramId?: number;
 }
 

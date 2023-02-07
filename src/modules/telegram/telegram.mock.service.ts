@@ -18,6 +18,8 @@ export class TelegramMockService {
 
   private readonly exchanges = [{ id: randomUUID(), name: 'Тинькоф' }];
 
+  private readonly redis = new Map<string, string>();
+
   private readonly companies = [
     { id: randomUUID(), exchangeId: this.exchanges[0].id, name: 'A' },
     { id: randomUUID(), exchangeId: this.exchanges[0].id, name: 'B' },
@@ -37,5 +39,15 @@ export class TelegramMockService {
   getCompaniesByExchangeId(id: string, page: number = 1): Companies[] {
     return this.companies.filter((item) => item.exchangeId === id)
       .slice((page - 1) * this.PAGE_LIMIT, page * this.PAGE_LIMIT);
+  }
+
+  getFromRedis<T>(key: string): T {
+    const data = this.redis.get(key);
+    if (data == null) return null;
+    return JSON.parse(data);
+  }
+
+  setToRedis(key: string, value: unknown): void {
+    this.redis.set(key, JSON.stringify(value));
   }
 }
