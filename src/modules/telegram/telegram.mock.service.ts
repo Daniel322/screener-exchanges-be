@@ -29,7 +29,7 @@ export class TelegramMockService {
   ]
 
   getExchanges(): Exchange[] {
-    return this.exchanges
+    return this.exchanges;
   }
 
   getExchangeById(id: string): Exchange {

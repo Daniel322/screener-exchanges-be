@@ -44,6 +44,12 @@ export const EnvConfig = {
 
     TELEGRAM_BOT_TOKEN: Joi.string().required(),
   }),
-  load: [env, database, throttle, telegram, times],
+  load: [
+    env,
+    database,
+    throttle,
+    telegram,
+    times,
+  ],
   isGlobal: true,
 };

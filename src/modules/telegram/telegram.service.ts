@@ -1,12 +1,18 @@
-import { Injectable, OnApplicationShutdown, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationShutdown,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf, Markup, Context } from 'telegraf';
 
 import { UsersService } from 'src/modules/users/users.service';
 import { TelegramMockService } from 'src/modules/telegram/telegram.mock.service';
+import { Bind } from 'src/common/decorators';
 
 @Injectable()
-export class TelegramService implements OnApplicationShutdown {
+export class TelegramService implements OnApplicationShutdown, OnModuleInit {
   private readonly logger = new Logger(TelegramService.name);
 
   private readonly bot: Telegraf;
@@ -17,7 +23,10 @@ export class TelegramService implements OnApplicationShutdown {
     private readonly usersService: UsersService,
   ) {
     this.bot = new Telegraf(this.configService.get('telegram.token'));
-      this.bot.start(this.onStart.bind(this));
+  }
+
+  onModuleInit() {
+      this.bot.start(this.onStart);
       this.bot.launch()
       .catch((error) => this.logger.error(`Bot launch: ${error.message}`, error.stack));
   }
@@ -27,6 +36,7 @@ export class TelegramService implements OnApplicationShutdown {
     else if (signal === 'SIGTERM') this.bot.stop('SIGTERM');
   }
 
+  @Bind
   private async onStart(ctx: Context): Promise<void> {
     try {
       const { from } = ctx.message;
@@ -40,7 +50,7 @@ export class TelegramService implements OnApplicationShutdown {
       const exchanges = this.telegramMockService.getExchanges();
       
       const buttonMarkup = exchanges.map((item) => [Markup.button.callback(item.name, `exchange|${item.id}|1`)]);
-      this.bot.action(/^exchange\|.+/, this.onSelectEchange.bind(this));
+      this.bot.action(/^exchange\|.+/, this.onSelectEchange);
   
       await ctx.reply('Выберите биржу:', Markup.inlineKeyboard(buttonMarkup));
     } catch (error) {
@@ -48,10 +58,10 @@ export class TelegramService implements OnApplicationShutdown {
     }
   }
 
+  @Bind
   private async onSelectEchange(ctx: Context): Promise<void> {
     try {
       if ('data' in ctx.callbackQuery) {
-        console.log('here', ctx.callbackQuery.data);
         const [, id, rawPage] = (ctx.callbackQuery.data as string).split('|');
         
         const page = Number(rawPage);
