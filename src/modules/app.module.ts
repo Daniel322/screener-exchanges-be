@@ -13,6 +13,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { EnvConfig, SequelizeConfig } from 'src/common/configs';
 import { HttpExceptionFilter } from 'src/common/exceptions';
 
+import { RedisModule } from 'src/services/redis/redis.module';
+
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -29,6 +31,7 @@ import { UsersModule } from './users/users.module';
         limit: config.get('throttle.limit'),
       }),
     }),
+    RedisModule,
     UsersModule,
   ],
   controllers: [],

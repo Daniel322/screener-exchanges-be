@@ -13,6 +13,12 @@ const database = registerAs('db', () => ({
   name: process.env.DB_NAME,
 }));
 
+const redis = registerAs('redis', () => ({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  ttl: process.env.REDIS_TTL,
+}));
+
 const throttle = registerAs('throttle', () => ({
   ttl: process.env.THROTTLE_TTL,
   limit: process.env.THROTTLE_LIMIT,
@@ -40,6 +46,6 @@ export const EnvConfig = {
 
     ARCHIVE_TIME: Joi.string().required(),
   }),
-  load: [env, database, throttle, times],
+  load: [env, database, redis, throttle, times],
   isGlobal: true,
 };
