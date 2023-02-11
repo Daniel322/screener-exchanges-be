@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -14,6 +15,7 @@ import { AuthService } from './auth.service';
 
 @Module({
   imports: [
+    ConfigModule,
     JwtModule.register({}),
     PassportModule,
     BcryptModule,

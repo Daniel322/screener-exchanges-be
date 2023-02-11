@@ -13,3 +13,10 @@ export interface UpdatePasswordData {
   password: string;
   newPassword: string;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  password?: string;
+  telegramId?: number;
+}

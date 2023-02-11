@@ -13,6 +13,13 @@ const database = registerAs('db', () => ({
   name: process.env.DB_NAME,
 }));
 
+const jwt = registerAs('jwt', () => ({
+  accessSecret: process.env.JWT_ACCESS_SECRET,
+  refreshSecret: process.env.JWT_REFRESH_SECRET,
+  accessTtl: Number(process.env.JWT_ACCESS_TTL),
+  refreshTtl: Number(process.env.JWT_REFRESH_TTL),
+}));
+
 const redis = registerAs('redis', () => ({
   host: process.env.REDIS_HOST,
   port: process.env.REDIS_PORT,
@@ -41,11 +48,19 @@ export const EnvConfig = {
     DB_PASSWORD: Joi.string().required(),
     DB_NAME: Joi.string().required(),
 
+    JWT_ACCESS_SECRET: Joi.string().required(),
+    JWT_REFRESH_SECRET: Joi.string().required(),
+    JWT_ACCESS_TTL: Joi.number().required(),
+    JWT_REFRESH_TTL: Joi.number().required(),
+
+    REDIS_HOST: Joi.string().required(),
+    REDIS_PORT: Joi.string().required(),
+
     THROTTLE_TTL: Joi.string().required(),
     THROTTLE_LIMIT: Joi.string().required(),
 
     ARCHIVE_TIME: Joi.string().required(),
   }),
-  load: [env, database, redis, throttle, times],
+  load: [env, database, jwt, redis, throttle, times],
   isGlobal: true,
 };
