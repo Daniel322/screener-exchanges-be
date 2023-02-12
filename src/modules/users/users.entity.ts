@@ -40,9 +40,6 @@ export class User extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: true,
-    validate: {
-      is: /^[0-9a-f]{64}$/i,
-    },
   })
   password: string;
 

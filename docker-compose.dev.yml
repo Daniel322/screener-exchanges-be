@@ -15,8 +15,10 @@ services:
     command: npm run start:dev
     links:
       - postgres:postgres
+      - redis:redis
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./src:/app/src
   postgres:
@@ -27,3 +29,8 @@ services:
       POSTGRES_DATABASE: project_x
     ports:
      - 5432:5432
+  redis:
+    restart: always
+    image: redis:latest
+    ports:
+      - 6379:6379
