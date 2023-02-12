@@ -35,6 +35,10 @@ const times = registerAs('times', () => ({
   archiveTime: process.env.ARCHIVE_TIME,
 }));
 
+const telegram = registerAs('telegram', () => ({
+  token: process.env.TELEGRAM_BOT_TOKEN,
+}));
+
 export const EnvConfig = {
   envFilePath: `.env.${process.env.NODE_ENV}`,
   validationSchema: Joi.object({
@@ -59,8 +63,8 @@ export const EnvConfig = {
     THROTTLE_TTL: Joi.string().required(),
     THROTTLE_LIMIT: Joi.string().required(),
 
-    ARCHIVE_TIME: Joi.string().required(),
+    TELEGRAM_BOT_TOKEN: Joi.string().optional(),
   }),
-  load: [env, database, jwt, redis, throttle, times],
+  load: [env, database, throttle, times, telegram, jwt, redis],
   isGlobal: true,
 };
