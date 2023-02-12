@@ -15,6 +15,7 @@ import { HttpExceptionFilter } from 'src/common/exceptions';
 
 import { RedisModule } from 'src/services/redis/redis.module';
 
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
       }),
     }),
     RedisModule,
+    AuthModule,
     UsersModule,
   ],
   controllers: [],

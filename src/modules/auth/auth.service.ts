@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 
 import { BcryptService } from 'src/services/bcrypt/bcrypt.service';
 import { RedisService } from 'src/services/redis/redis.service';
@@ -9,7 +9,12 @@ import { RedisService } from 'src/services/redis/redis.service';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/users.types';
 
-import { LoginProps, TokenData, RefreshTokenProps } from './auth.types';
+import {
+  LoginProps,
+  TokenData,
+  RefreshTokenProps,
+  UserWithTokens,
+} from './auth.types';
 @Injectable()
 export class AuthService {
   private readonly accessJwtSecret: string;
@@ -84,6 +89,27 @@ export class AuthService {
     }
 
     return this.generateTokens(userDataWithoutPassword);
+  }
+
+  async signUp({ email, password }: LoginProps): Promise<UserWithTokens> {
+    const userWithThisEmail = await this.usersService.findUser({
+      where: { email },
+    });
+
+    if (userWithThisEmail) {
+      throw new BadRequestException('user with this email already created');
+    }
+
+    const user = await this.usersService.createUser({ email, password });
+
+    const { password: _, ...userData } = user.toJSON();
+
+    const tokens = await this.generateTokens(userData);
+
+    return {
+      user: userData,
+      tokens,
+    };
   }
 
   async refresh({

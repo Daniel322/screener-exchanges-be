@@ -41,7 +41,7 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
     validate: {
-      is: /^[0-9a-f]{64}$/i,
+      // is: /^[0-9a-f]{32}$/i,
     },
   })
   password: string;

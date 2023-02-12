@@ -6,16 +6,15 @@ import {
   Req,
   BadRequestException,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { AccessGuard, RefreshGuard } from 'src/common/guards';
 
-import { User } from 'src/modules/users/users.entity';
-
 import { LoginBodyDto, RefreshBodyDto } from './auth.dto';
 import { AuthService } from './auth.service';
-import { TokenData, RequestUser } from './auth.types';
+import { TokenData, RequestUser, UserWithTokens } from './auth.types';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -30,6 +29,20 @@ export class AuthController {
   async login(@Body() body: LoginBodyDto): Promise<TokenData> {
     try {
       return this.authService.login(body);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: 'sign up process',
+  })
+  @Post('/signup')
+  @HttpCode(201)
+  async signUp(@Body() body: LoginBodyDto): Promise<UserWithTokens> {
+    try {
+      return this.authService.signUp(body);
     } catch (error) {
       throw new BadRequestException(error);
     }

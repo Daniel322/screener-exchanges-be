@@ -18,3 +18,8 @@ export interface RefreshTokenProps {
   userId: string;
   refreshToken: string;
 }
+
+export interface UserWithTokens {
+  user: User;
+  tokens: TokenData;
+}

@@ -81,8 +81,12 @@ export class UsersService {
     return this.updateUser(id, { password: newHashPassword });
   }
 
-  async findUserByPk(pk: string): Promise<User> {
-    return this.userRepository.findByPk(pk);
+  async findUserByPk(pk: string, withPassword = false): Promise<User> {
+    return this.userRepository.findByPk(pk, {
+      attributes: {
+        exclude: !withPassword && ['password'],
+      },
+    });
   }
 
   async findUser(options: FindOptions): Promise<User> {
