@@ -4,9 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
 import { JwtAccessStrategy, JwtRefreshStrategy } from 'src/common/guards';
-
 import { UsersModule } from 'src/modules/users/users.module';
-
 import { BcryptModule } from 'src/services/bcrypt/bcrypt.module';
 import { RedisModule } from 'src/services/redis/redis.module';
 

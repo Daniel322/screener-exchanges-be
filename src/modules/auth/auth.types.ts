@@ -2,6 +2,10 @@ import { User } from 'src/modules/users/users.types';
 
 export type RequestUser = Pick<User, 'id'>;
 
+export interface RequestGuard {
+  user: RequestUser;
+}
+
 export interface LoginProps {
   email: string;
   password: string;

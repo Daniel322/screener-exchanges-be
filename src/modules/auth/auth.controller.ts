@@ -14,7 +14,12 @@ import { AccessGuard, RefreshGuard } from 'src/common/guards';
 
 import { LoginBodyDto, RefreshBodyDto } from './auth.dto';
 import { AuthService } from './auth.service';
-import { TokenData, RequestUser, UserWithTokens } from './auth.types';
+import {
+  TokenData,
+  RequestUser,
+  UserWithTokens,
+  RequestGuard,
+} from './auth.types';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -55,7 +60,7 @@ export class AuthController {
   @UseGuards(RefreshGuard)
   @Post('/refresh')
   async refresh(
-    @Req() request: { user: { id: string } },
+    @Req() request: RequestGuard,
     @Body() body: RefreshBodyDto,
   ): Promise<TokenData> {
     try {
@@ -74,9 +79,7 @@ export class AuthController {
   })
   @UseGuards(AccessGuard)
   @Get('/check-token')
-  async checkToken(
-    @Req() request: { user: RequestUser },
-  ): Promise<RequestUser> {
+  async checkToken(@Req() request: RequestGuard): Promise<RequestUser> {
     try {
       return request.user;
     } catch (error) {
