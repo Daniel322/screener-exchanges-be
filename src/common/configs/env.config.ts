@@ -39,6 +39,11 @@ const telegram = registerAs('telegram', () => ({
   token: process.env.TELEGRAM_BOT_TOKEN,
 }));
 
+const coinMarketCap = registerAs('coinMarketCap', () => ({
+  apiKey: process.env.COIN_MARKET_CAP_API_KEY,
+  url: process.env.COIN_MARKET_CAP_API_URL,
+}));
+
 export const EnvConfig = {
   envFilePath: `.env.${process.env.NODE_ENV}`,
   validationSchema: Joi.object({
@@ -63,8 +68,20 @@ export const EnvConfig = {
     THROTTLE_TTL: Joi.string().required(),
     THROTTLE_LIMIT: Joi.string().required(),
 
-    TELEGRAM_BOT_TOKEN: Joi.string().optional(),
+    TELEGRAM_BOT_TOKEN: Joi.string().required(),
+
+    COIN_MARKET_CAP_API_KEY: Joi.string().required(),
+    COIN_MARKET_CAP_API_URL: Joi.string().required(),
   }),
-  load: [env, database, throttle, times, telegram, jwt, redis],
+  load: [
+    env,
+    database,
+    throttle,
+    times,
+    telegram,
+    jwt,
+    redis,
+    coinMarketCap,
+  ],
   isGlobal: true,
 };

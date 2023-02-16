@@ -15,6 +15,7 @@ import { HttpExceptionFilter } from 'src/common/exceptions';
 import { TelegramModule } from 'src/modules/telegram/telegram.module';
 import { RedisModule } from 'src/services/redis/redis.module';
 import { AuthModule } from './auth/auth.module';
+import { CoinMarketCapModule } from './coin-market-cap/coin-market-cap.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -35,6 +36,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     TelegramModule,
+    CoinMarketCapModule,
   ],
   controllers: [],
   providers: [
