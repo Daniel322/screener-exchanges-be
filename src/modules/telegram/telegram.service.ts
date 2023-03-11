@@ -21,6 +21,7 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
   constructor(
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly redisService: RedisService,
     private readonly coinMarketCapService: CoinMarketCapService
   ) {
     this.bot = new Telegraf(this.configService.get('telegram.token'));
@@ -48,10 +49,15 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
       if (user == null) await this.usersService.createUser({ telegramId: from.id });
       this.bot.action(/^get-coins\|.+/, this.onGetCoins);
       this.bot.action(/^coin\|.+/, this.onSelectCoin);
+      this.bot.action(/^toggle-coin\|.+/, this.onToggleCoin);
+      this.bot.action(/^my-coins\|.+/, this.onMyCoins);
       this.bot.on('message', this.onSearch);
 
       await ctx.reply('Добро пожаловать в Screener Exchange bot!');
-      const buttonMarkup = [Markup.button.callback('Список монеток', 'get-coins|1')];
+      const buttonMarkup = [
+        Markup.button.callback('Мои монетки', `my-coins|${user.id}`),
+        Markup.button.callback('Список монеток', 'get-coins|1'),
+      ];
       await ctx.reply('Для поиска отправьте сообщение с символом (пр. USDT)', Markup.inlineKeyboard(buttonMarkup));
     } catch (error) {
       this.logger.error(error.message, error.stack);
@@ -93,6 +99,8 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
   @Bind
   private async onSelectCoin(ctx: Context): Promise<void> {
     try {
+      const user = await this.usersService.findUser({ where: { telegramId: ctx.from.id } });
+      
       if ('data' in ctx.callbackQuery) {
         const [, id] = (ctx.callbackQuery.data as string).split('|');
         const data = await this.coinMarketCapService.getCurrencyQuotesLatest({ id })
@@ -102,7 +110,17 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
         for (const key in coin.quote) {
           message += `\n${key}: ${coin.quote[key].price.toFixed(4)}`;
         }
-        const buttonMarkup = [Markup.button.callback('Список монеток', 'get-coins|1')];
+
+        const userCoins = await this.redisService.get<number[] | undefined>(`coins|${user.id}`) ?? [];
+        const isExist = userCoins.includes(coin.id);
+
+        const buttonMarkup = [
+          [
+            Markup.button.callback(isExist ? 'Удалить из моих моенток' : 'Сохранить в мои монетки', `toggle-coin|${user.id}|${coin.id}`),
+            Markup.button.callback('Мои монетки', `my-coins|${user.id}`)
+          ],
+          [Markup.button.callback('Список монеток', 'get-coins|1')],
+        ];
 
         await ctx.reply(message, Markup.inlineKeyboard(buttonMarkup));
       }
@@ -128,6 +146,58 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
       }
     }
     catch (error) {
+      this.logger.error(error.message, error.stack);
+    }
+  }
+
+  @Bind
+  private async onToggleCoin(ctx: Context): Promise<void> {
+    try {
+      if ('data' in ctx.callbackQuery) {
+        const [, userId, rawCoinId] = (ctx.callbackQuery.data as string).split('|');
+        const coinId = Number(rawCoinId);
+        const userCoins = await this.redisService.get<number[] | undefined>(`coins|${userId}`) ?? [];
+
+        const coinIndex = userCoins.indexOf(coinId);
+        if (coinIndex < 0) userCoins.push(coinId);
+        else userCoins.splice(coinIndex, 1);
+
+        await Promise.all([
+          this.redisService.set(`coins|${userId}`, userCoins),
+          ctx.reply(
+            coinIndex < 0 ? 'Монетка была сохранена' : 'Монетка была удалена',
+            Markup.inlineKeyboard([
+              Markup.button.callback('Мои монетки', `my-coins|${userId}`),
+              Markup.button.callback('Список монеток', 'get-coins|1'),
+            ])
+          ),
+        ]);
+      }
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+    }
+  }
+
+  @Bind
+  private async onMyCoins(ctx: Context): Promise<void> {
+    try {
+      if ('data' in ctx.callbackQuery) {
+        const [, userId] = (ctx.callbackQuery.data as string).split('|');
+        const userCoins = await this.redisService.get<number[] | undefined>(`coins|${userId}`) ?? [];
+        const coins = await this.coinMarketCapService.getCurrencyQuotesLatest({
+          id: userCoins.join(','),
+        });
+        
+        const buttonMarkup = Object.values(coins).map((item) => [Markup.button.callback(item.name, `coin|${item.id}`)]);
+        
+        buttonMarkup.push([Markup.button.callback('Список монеток', 'get-coins|1')]);
+
+        await ctx.reply(
+          'Ваши монетки:',
+          Markup.inlineKeyboard(buttonMarkup)
+        );
+      }
+    } catch (error) {
       this.logger.error(error.message, error.stack);
     }
   }
