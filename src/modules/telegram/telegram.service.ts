@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf, Markup, Context } from 'telegraf';
+import { message } from 'telegraf/filters';
 
 import { UsersService } from 'src/modules/users/users.service';
 import { Bind } from 'src/common/decorators';
@@ -47,17 +48,18 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
       });
 
       if (user == null) await this.usersService.createUser({ telegramId: from.id });
-      this.bot.action(/^get-coins\|.+/, this.onGetCoins);
+      this.bot.action(/^\/?get_coins\|.+/, this.onGetCoins);
       this.bot.action(/^coin\|.+/, this.onSelectCoin);
-      this.bot.action(/^toggle-coin\|.+/, this.onToggleCoin);
-      this.bot.action(/^my-coins\|.+/, this.onMyCoins);
-      this.bot.on('message', this.onSearch);
+      this.bot.action(/^toggle_coin\|.+/, this.onToggleCoin);
+      this.bot.action(/^my_coins\|.+/, this.onMyCoins);
+      this.bot.on(message('text'), this.onSearch);
 
       await ctx.reply('Добро пожаловать в Screener Exchange bot!');
       const buttonMarkup = [
-        Markup.button.callback('Мои монетки', `my-coins|${user.id}`),
-        Markup.button.callback('Список монеток', 'get-coins|1'),
+        Markup.button.callback('Мои монетки', `my_coins|${user.id}`),
+        Markup.button.callback('Список монеток', 'get_coins|1'),
       ];
+      
       await ctx.reply('Для поиска отправьте сообщение с символом (пр. USDT)', Markup.inlineKeyboard(buttonMarkup));
     } catch (error) {
       this.logger.error(error.message, error.stack);
@@ -78,10 +80,10 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
         
       const paginationButtons = [];
       if (Number(page) > 1) {
-        paginationButtons.push(Markup.button.callback('Назад', `get-coins|${page - 1}`));
+        paginationButtons.push(Markup.button.callback('Назад', `get_coins|${page - 1}`));
       }
       if (coins.length !== 0) {
-        paginationButtons.push(Markup.button.callback('Дальше', `get-coins|${page + 1}`));
+        paginationButtons.push(Markup.button.callback('Дальше', `get_coins|${page + 1}`));
       }
 
       buttonMarkup.push(paginationButtons);
@@ -116,10 +118,10 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
 
         const buttonMarkup = [
           [
-            Markup.button.callback(isExist ? 'Удалить из моих моенток' : 'Сохранить в мои монетки', `toggle-coin|${user.id}|${coin.id}`),
-            Markup.button.callback('Мои монетки', `my-coins|${user.id}`)
+            Markup.button.callback(isExist ? 'Удалить из моих моенток' : 'Сохранить в мои монетки', `toggle_coin|${user.id}|${coin.id}`),
+            Markup.button.callback('Мои монетки', `my_coins|${user.id}`)
           ],
-          [Markup.button.callback('Список монеток', 'get-coins|1')],
+          [Markup.button.callback('Список монеток', 'get_coins|1')],
         ];
 
         await ctx.reply(message, Markup.inlineKeyboard(buttonMarkup));
@@ -167,8 +169,8 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
           ctx.reply(
             coinIndex < 0 ? 'Монетка была сохранена' : 'Монетка была удалена',
             Markup.inlineKeyboard([
-              Markup.button.callback('Мои монетки', `my-coins|${userId}`),
-              Markup.button.callback('Список монеток', 'get-coins|1'),
+              Markup.button.callback('Мои монетки', `my_coins|${userId}`),
+              Markup.button.callback('Список монеток', 'get_coins|1'),
             ])
           ),
         ]);
@@ -190,7 +192,7 @@ export class TelegramService implements OnApplicationShutdown, OnModuleInit {
         
         const buttonMarkup = Object.values(coins).map((item) => [Markup.button.callback(item.name, `coin|${item.id}`)]);
         
-        buttonMarkup.push([Markup.button.callback('Список монеток', 'get-coins|1')]);
+        buttonMarkup.push([Markup.button.callback('Список монеток', 'get_coins|1')]);
 
         await ctx.reply(
           'Ваши монетки:',
