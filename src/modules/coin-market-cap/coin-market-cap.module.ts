@@ -18,5 +18,6 @@ import { CoinMarketCapService } from './coin-market-cap.service';
     }),
   ],
   providers: [CoinMarketCapService],
+  exports: [CoinMarketCapService],
 })
 export class CoinMarketCapModule {}

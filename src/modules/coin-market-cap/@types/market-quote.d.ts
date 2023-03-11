@@ -1,4 +1,5 @@
 import { Platform } from './platrofrm';
+import { Quote } from './quote';
 
 export interface MarketQuote {
   id: number;
